@@ -34,7 +34,7 @@ Durable Transaction Nonces, which are 32-byte alphanumerics, are used in place o
 
 How do they make transactions unique to avoid double spending?
 
-If nonces are used in place of recent blockhashes, the first instruction of the transaction needs to be an `AdvanceNonce` instruction, which changes or advances the nonce. This ensures that every transaction which is signed using the nonce as the recent blockhash, irrespective of being successfully submitted or not will be unique.
+If nonces are used in place of recent blockhashes, the first instruction of the transaction needs to be an `nonceAdvance` instruction, which changes or advances the nonce. This ensures that every transaction which is signed using the nonce as the recent blockhash, irrespective of being successfully submitted or not will be unique.
 
 Let's look at a couple of accounts that are important for using using durable nonces with Solana transactions.
 
@@ -79,7 +79,9 @@ Signature: skkfzUQrZF2rcmrhAQV6SuLa7Hj3jPFu7cfXAHvkVep3Lk3fNSVypwULhqMRinsa6Zj5x
 ```
 Upon searching the [signature](https://solscan.io/tx/skkfzUQrZF2rcmrhAQV6SuLa7Hj3jPFu7cfXAHvkVep3Lk3fNSVypwULhqMRinsa6Zj5xjj8zKZBQ1agMxwuABZ?cluster=devnet) on the explorer, we can see that the Nonce Account was created and the `InitializeNonce` instruction was used to initialise a nonce within the account.
 
-We can get query the value of the stored Nonce as follows.
+
+### Fetch Nonce
+We can query the value of the stored Nonce as follows.
 ```
 solana nonce nonce-account.json
 ```
@@ -91,4 +93,205 @@ AkrQn5QWLACSP5EMT2R1ZHyKaGWVFrDHJ6NL89HKtwjQ
 
 This is the 32 bit alphanumeric string that will be used in place of a recent blockhashes while signing a transaction.
 
-### 
+### Displace Nonce Account
+We can inspect the details of a Nonce Account in a prettier formated version
+
+```
+solana nonce-account nonce-account.json
+```
+
+Output
+```
+Balance: 0.0015 SOL
+Minimum Balance Required: 0.00144768 SOL
+Nonce blockhash: AkrQn5QWLACSP5EMT2R1ZHyKaGWVFrDHJ6NL89HKtwjQ
+Fee: 5000 lamports per signature
+Authority: 5CZKcm6PakaRWGK8NogzXvj8CjA71uSofKLohoNi4Wom
+```
+
+### Advancing Nonce
+As discussed before, advancing the Nonce, or changing the value of the nonce is an important step for making subsequent transactions unique. The Nonce Authority needs to sign the transaction with the `nonceAdvance` instruction.
+
+```
+solana new-nonce nonce-account.json
+```
+
+Output
+```
+Signature: 4nMHnedguiEtHshuMEm3NsuTQaeV8AdcDL6QSndTZLK7jcLUag6HCiLtUq6kv21yNSVQLoFj44aJ5sZrTXoYYeyS
+```
+
+If we check the nonce again, the value of the nonce has changed, or advanced.
+
+```
+solana nonce nonce-account.json
+```
+Output
+```
+DA8ynAQTGctqQXNS2RNTGpag6s5p5RcrBm2DdHhvpRJ8
+```
+
+### Withdraw from Nonce Account
+We transferred 0.0015 SOL when creating the Nonce Account. The Nonce Authority can transfer these funds back to itself, or some other account.
+
+```
+solana withdraw-from-nonce-account nonce-account.json nonce-authority.json 0.0000001
+```
+
+Output
+```
+Signature: 5zuBmrUpqnubdePHVgzSNThbocruJZLJK5Dut7DM6WyoqW4Qbrc26uCw3nq6jRocR9XLMwZZ79U54HDnGhDJVNfF
+```
+
+We can check the status of the Nonce Account after the withdrawal, the balance should have changed.
+
+```
+solana nonce-account nonce-account.json
+```
+
+Output
+```
+Balance: 0.0014999 SOL
+Minimum Balance Required: 0.00144768 SOL
+Nonce blockhash: DA8ynAQTGctqQXNS2RNTGpag6s5p5RcrBm2DdHhvpRJ8
+Fee: 5000 lamports per signature
+Authority: 5CZKcm6PakaRWGK8NogzXvj8CjA71uSofKLohoNi4Wom
+```
+
+## Live Example: DAO Offline Co-Signing
+Before we try to sign and send a durable transaction, let's see how transactions are sumbitted using blockhashes. 
+
+We will use an example where a DAO committee needs to transfer some SOL to a new wallet. Two co-signers are needed before sending the SOL, where `co-sender` pays for the transaction and `sender` sends the SOL. To add to this, the `co-sender` is very careful when it comes to connecting his device to the internet, and thus wants to sign the transaction offline.
+
+Let's create three new keypairs which will act as the two members of the DAO, and the receiver. Although for this example we are creating the keypairs in the same system, we will assume that these accounts are on different systems to replicate an IRL scenario.
+
+```
+solana-keygen new -o sender.json
+// pubkey: H8BHbivzT4DtJxL4J4X53CgnqzTUAEJfptSaEHsCvg51
+
+solana-keygen new -o co-sender.json
+// pubkey: HDx43xY4piU3xMxNyRQkj89cqiF15hz5FVW9ergTtZ7S
+
+solana-keygen new -o receiver.json
+// pubkey: D3RAQxwQBhMLum2WK7eCn2MpRWgeLtDW7fqXTcqtx9uC
+```
+
+Let's add some SOL to the the member wallets.
+
+```
+solana airdrop -k sender.json 0.5
+solana airdrop -k co-sender.json 0.5
+```
+
+The first step is to build a transfer transaction from `sender` to `reciever` and sign it with `co-sender`'s wallet.
+
+To sign an offline transaction, we need to use:
+1. `--sign-only`: which prevents clients from sending the transaction.
+2. `--blockhash`: which lets us specify a recent blockhash so that the client does not try to fetch for it in an offline setting.
+
+- We can get a recent blockhash from [solscan](https://solscan.io/blocks?cluster=devnet). Just copy the first blockhash from the list.
+- We will also need the pubkey of `sender`: `H8BHbivzT4DtJxL4J4X53CgnqzTUAEJfptSaEHsCvg51`
+- You can even turn off your internet when you sign this transaction using the `co-sender`'s wallet :).
+
+```
+solana transfer receiver.json 0.1 \
+  --sign-only \
+  --blockhash F13BkBgNTyyuruUQFSgUkXPMJCfPvKhhrr217eiqGfVE \
+  --fee-payer co-sender.json \
+  --from H8BHbivzT4DtJxL4J4X53CgnqzTUAEJfptSaEHsCvg51 \
+  --keypair co-sender.json
+```
+
+Output
+```
+Blockhash: F13BkBgNTyyuruUQFSgUkXPMJCfPvKhhrr217eiqGfVE
+Signers (Pubkey=Signature):
+ HDx43xY4piU3xMxNyRQkj89cqiF15hz5FVW9ergTtZ7S=2gUmcb4Xwm3Dy9xH3a3bePsWVKCRMtUghqDS9pnGZDmX6hqtWMfpubEbgcai5twncoAJzyr9FRn3yuXVeSvYD4Ni
+Absent Signers (Pubkey):
+ H8BHbivzT4DtJxL4J4X53CgnqzTUAEJfptSaEHsCvg51
+```
+
+The transaction is signed by `co-sender`'s wallet who will pay the tx fee. Also, we are notified about the pending signature from the `sender`'s wallet (`H8BHbivzT4DtJxL4J4X53CgnqzTUAEJfptSaEHsCvg51`).
+
+In a real world scenario, `co-sender` can share their `Pubkey=Signature` pair with the `sender` who will need this sign and submit the transaction. This share may take more than a minute to happen. Once the `sender` receives this pair, they can initiate the transfer.
+
+```
+solana transfer receiver.json 0.1 \
+  --allow-unfunded-recipient \
+  --blockhash F13BkBgNTyyuruUQFSgUkXPMJCfPvKhhrr217eiqGfVE \
+  --from sender.json \
+  --keypair sender.json \
+  --signer HDx43xY4piU3xMxNyRQkj89cqiF15hz5FVW9ergTtZ7S=2gUmcb4Xwm3Dy9xH3a3bePsWVKCRMtUghqDS9pnGZDmX6hqtWMfpubEbgcai5twncoAJzyr9FRn3yuXVeSvYD4Ni
+```
+
+Output
+```
+Error: Hash has expired F13BkBgNTyyuruUQFSgUkXPMJCfPvKhhrr217eiqGfVE
+```
+
+The transfer is not successful because the hash has expired. How do we overcome this issue of expired blockhashes? Using Durable Nonces!
+
+We will use the `nonce-account.json` and `nonce-authority.json` keypairs that we created earlier. We already have a nonce initialised in the `nonce-account`. Let's advance it to get a new one first, just to be sure that the `nonce` isn't already used.
+
+
+```
+solana new-nonce nonce-account.json
+solana nonce-account nonce-account.json
+```
+
+Output
+```
+Signature: 3z1sSU7fmdRoBZynVLiJEqa97Ja481nb3r1mLu8buAgwMnaKdF4ZaiBkzrLjPRzn1HV2rh4AHQTJHAQ3DsDiYVpF
+
+Balance: 0.0014999 SOL
+Minimum Balance Required: 0.00144768 SOL
+Nonce blockhash: HNUi6La2QpGJdfcAR6yFFmdgYoCvFZREkve2haMBxXVz
+Fee: 5000 lamports per signature
+Authority: 5CZKcm6PakaRWGK8NogzXvj8CjA71uSofKLohoNi4Wom
+```
+
+Perfect, now let's start with offline co-signing the transaction with `co-signer`'s wallet, but this time, we'll use the `Nonce blockhash` printed above, which is basically the `nonce` stored in the `nonce-account` as the blockhash for the transfer transaction.
+
+```
+solana transfer receiver.json 0.1 \
+  --sign-only \
+  --nonce nonce-account.json \
+  --blockhash HNUi6La2QpGJdfcAR6yFFmdgYoCvFZREkve2haMBxXVz \
+  --fee-payer co-sender.json \
+  --from H8BHbivzT4DtJxL4J4X53CgnqzTUAEJfptSaEHsCvg51 \
+  --keypair co-sender.json
+```
+
+Output
+```
+Blockhash: HNUi6La2QpGJdfcAR6yFFmdgYoCvFZREkve2haMBxXVz
+Signers (Pubkey=Signature):
+ HDx43xY4piU3xMxNyRQkj89cqiF15hz5FVW9ergTtZ7S=5tfuPxsXchbVFU745658nsQr5Gqhb5nRnZKLnnovJ2PZBHbqUbe7oB5kDbnq7tjeJ2V8Mywa4gujUjT4BWKRcAdi
+Absent Signers (Pubkey):
+ H8BHbivzT4DtJxL4J4X53CgnqzTUAEJfptSaEHsCvg51
+```
+
+This is very similar to the one we signed using the recent blockhash. Now we'll sign and send the transaction with the `sender`'s wallet.
+
+```
+solana transfer receiver.json 0.1 \
+  --nonce nonce-account.json \
+  --nonce-authority nonce-authority.json \
+  --blockhash HNUi6La2QpGJdfcAR6yFFmdgYoCvFZREkve2haMBxXVz \
+  --from sender.json \
+  --keypair sender.json \
+  --signer HDx43xY4piU3xMxNyRQkj89cqiF15hz5FVW9ergTtZ7S=5tfuPxsXchbVFU745658nsQr5Gqhb5nRnZKLnnovJ2PZBHbqUbe7oB5kDbnq7tjeJ2V8Mywa4gujUjT4BWKRcAdi
+```
+
+Output
+```
+Signature: anQ8VtQgeSMoKTnQCubTenq1J7WKxAa1dbFMDLsbDWgV6GGL135G1Ydv4QTNd6GptP3TxDQ2ZWi3Y5qnEtjM7yg
+```
+
+The transaction is successfully submitted!
+
+If we check it on the [explorer](https://solscan.io/tx/anQ8VtQgeSMoKTnQCubTenq1J7WKxAa1dbFMDLsbDWgV6GGL135G1Ydv4QTNd6GptP3TxDQ2ZWi3Y5qnEtjM7yg?cluster=devnet), we can see that an instruction, `AdvanceNonce` was prepended to the transaction, as we discussed before. This is done to avoid using the same nonce again.
+
+Voila, we've gone through a very real-life use case of Durable Nonces. Now let's see how to use them in transactions using JavaScript.
+
+## Durable Nonces with Solana `web3.js`
