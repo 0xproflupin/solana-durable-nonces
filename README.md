@@ -295,3 +295,80 @@ If we check it on the [explorer](https://solscan.io/tx/anQ8VtQgeSMoKTnQCubTenq1J
 Voila, we've gone through a very real-life use case of Durable Nonces. Now let's see how to use them in transactions using JavaScript.
 
 ## Durable Nonces with Solana `web3.js`
+We'll use a similar example of making a simple transfer to demonstrate how to send transactions using durable nonces.
+
+### Create Nonce Authority
+```JS
+const nonceAuthKP = Keypair.generate();
+// airdrop some SOL into this account from https://solfaucet.com/
+```
+### Create Nonce Accounts
+
+```JS
+const nonceKeypair = Keypair.generate();
+const tx = new Transaction();
+
+// the fee payer can be any account
+tx.feePayer = nonceAuthKP.publicKey;
+
+// to create the nonce account, you can use fetch the recent blockhash
+// or use a nonce from a different, pre-existing nonce account
+tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+tx.add(
+    // create system account with the minimum amount needed for rent exemption.
+    // NONCE_ACCOUNT_LENGTH is the space a nonce account takes
+    SystemProgram.createAccount({
+        fromPubkey: nonceAuthKP.publicKey,
+        newAccountPubkey: nonceKeypairs[j].publicKey,
+        lamports: 0.0015 * LAMPORTS_PER_SOL,
+        space: NONCE_ACCOUNT_LENGTH,
+        programId: SystemProgram.programId,
+    }),
+    // initialise nonce with the created nonceKeypair's pubkey as the noncePubkey
+    // also specify the authority of the nonce account
+    SystemProgram.nonceInitialize({
+        noncePubkey: nonceKeypairs[j].publicKey,
+        authorizedPubkey: nonceAuthKP.publicKey,
+    })
+);
+
+// sign the transaction with both the nonce keypair and the authority keypair
+tx.sign(nonceKeypair, nonceAuthKP);
+
+// send the transaction
+const sig = await sendAndConfirmRawTransaction(
+    connection,
+    tx.serialize({requireAllSignatures: false})
+);
+console.log("Nonce initiated: ", sig);
+```
+
+### Fetch Initialised Nonce Account
+```JS
+const accountInfo = await connection.getAccountInfo(nonceKeypair.publicKey);
+const nonceAccount = NonceAccount.fromAccountData(accountInfo.data);
+const nonce = nonceAccount.nonce;
+```
+
+### Sign Transaction using Durable Nonce
+```JS
+const ix = program.instruction.vote(vote, {
+    accounts: {
+    poll: poll,
+    user: wallet.publicKey,
+    }
+});
+const advanceIX = SystemProgram.nonceAdvance({
+    authorizedPubkey: nonceAuthKP.publicKey,
+    noncePubkey: noncePubKey
+})
+const tx = new Transaction();
+tx.add(advanceIX);
+tx.add(ix);
+
+tx.recentBlockhash = nonce;
+tx.feePayer = publicKey;
+tx.sign(nonceAuthKP);
+const signedtx = await signTransaction(tx);
+```
