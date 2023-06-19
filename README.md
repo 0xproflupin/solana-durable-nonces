@@ -52,13 +52,13 @@ Now that we know what Durable Nonces are, its time to create some use them to se
 ### Create Nonce Authority
 Let's start with creating a new keypair which we will use as our Nonce authority. We can use the keypair currently configured in our Solana CLI, but its better to make a fresh one (make sure you're on devnet).
 
-```
+```console
 solana-keygen new -o nonce-authority.json
 ```
 
 Set the current Solana CLI keypair to `nonce-authority.json` and airdrop some SOL in it.
 
-```
+```console
 solana config set -k ~/<path>/nonce-authority.json
 solana airdrop 2
 ```
@@ -68,13 +68,13 @@ Okay, we're set. Let's create our nonce account.
 ### Create Nonce Account
 Create a new keypair `nonce-account` and use the `create-nonce-account` instruction to delegate this keypair as the Nonce Account. We will also transfer 0.0015 SOL to the Nonce Account from the Nonce Authority, which is usually just above the minimum quantity needed for rent exemption.
 
-```
+```console
 solana-keygen new -o nonce-account.json
 solana create-nonce-account nonce-account.json 0.0015
 ```
 
 Output
-```
+```console
 Signature: skkfzUQrZF2rcmrhAQV6SuLa7Hj3jPFu7cfXAHvkVep3Lk3fNSVypwULhqMRinsa6Zj5xjj8zKZBQ1agMxwuABZ
 ```
 Upon searching the [signature](https://solscan.io/tx/skkfzUQrZF2rcmrhAQV6SuLa7Hj3jPFu7cfXAHvkVep3Lk3fNSVypwULhqMRinsa6Zj5xjj8zKZBQ1agMxwuABZ?cluster=devnet) on the explorer, we can see that the Nonce Account was created and the `InitializeNonce` instruction was used to initialise a nonce within the account.
@@ -82,12 +82,12 @@ Upon searching the [signature](https://solscan.io/tx/skkfzUQrZF2rcmrhAQV6SuLa7Hj
 
 ### Fetch Nonce
 We can query the value of the stored Nonce as follows.
-```
+```console
 solana nonce nonce-account.json
 ```
 
 Output
-```
+```console
 AkrQn5QWLACSP5EMT2R1ZHyKaGWVFrDHJ6NL89HKtwjQ
 ```
 
@@ -96,12 +96,12 @@ This is the 32 bit alphanumeric string that will be used in place of a recent bl
 ### Displace Nonce Account
 We can inspect the details of a Nonce Account in a prettier formated version
 
-```
+```console
 solana nonce-account nonce-account.json
 ```
 
 Output
-```
+```console
 Balance: 0.0015 SOL
 Minimum Balance Required: 0.00144768 SOL
 Nonce blockhash: AkrQn5QWLACSP5EMT2R1ZHyKaGWVFrDHJ6NL89HKtwjQ
@@ -112,45 +112,45 @@ Authority: 5CZKcm6PakaRWGK8NogzXvj8CjA71uSofKLohoNi4Wom
 ### Advancing Nonce
 As discussed before, advancing the Nonce, or changing the value of the nonce is an important step for making subsequent transactions unique. The Nonce Authority needs to sign the transaction with the `nonceAdvance` instruction.
 
-```
+```console
 solana new-nonce nonce-account.json
 ```
 
 Output
-```
+```console
 Signature: 4nMHnedguiEtHshuMEm3NsuTQaeV8AdcDL6QSndTZLK7jcLUag6HCiLtUq6kv21yNSVQLoFj44aJ5sZrTXoYYeyS
 ```
 
 If we check the nonce again, the value of the nonce has changed, or advanced.
 
-```
+```console
 solana nonce nonce-account.json
 ```
 Output
-```
+```console
 DA8ynAQTGctqQXNS2RNTGpag6s5p5RcrBm2DdHhvpRJ8
 ```
 
 ### Withdraw from Nonce Account
 We transferred 0.0015 SOL when creating the Nonce Account. The Nonce Authority can transfer these funds back to itself, or some other account.
 
-```
+```console
 solana withdraw-from-nonce-account nonce-account.json nonce-authority.json 0.0000001
 ```
 
 Output
-```
+```console
 Signature: 5zuBmrUpqnubdePHVgzSNThbocruJZLJK5Dut7DM6WyoqW4Qbrc26uCw3nq6jRocR9XLMwZZ79U54HDnGhDJVNfF
 ```
 
 We can check the status of the Nonce Account after the withdrawal, the balance should have changed.
 
-```
+```console
 solana nonce-account nonce-account.json
 ```
 
 Output
-```
+```console
 Balance: 0.0014999 SOL
 Minimum Balance Required: 0.00144768 SOL
 Nonce blockhash: DA8ynAQTGctqQXNS2RNTGpag6s5p5RcrBm2DdHhvpRJ8
@@ -165,7 +165,7 @@ We will use an example where a DAO committee needs to transfer some SOL to a new
 
 Let's create three new keypairs which will act as the two members of the DAO, and the receiver. Although for this example we are creating the keypairs in the same system, we will assume that these accounts are on different systems to replicate an IRL scenario.
 
-```
+```console
 solana-keygen new -o sender.json
 // pubkey: H8BHbivzT4DtJxL4J4X53CgnqzTUAEJfptSaEHsCvg51
 
@@ -178,7 +178,7 @@ solana-keygen new -o receiver.json
 
 Let's add some SOL to the the member wallets.
 
-```
+```console
 solana airdrop -k sender.json 0.5
 solana airdrop -k co-sender.json 0.5
 ```
@@ -193,7 +193,7 @@ To sign an offline transaction, we need to use:
 - We will also need the pubkey of `sender`: `H8BHbivzT4DtJxL4J4X53CgnqzTUAEJfptSaEHsCvg51`
 - You can even turn off your internet when you sign this transaction using the `co-sender`'s wallet :).
 
-```
+```console
 solana transfer receiver.json 0.1 \
   --sign-only \
   --blockhash F13BkBgNTyyuruUQFSgUkXPMJCfPvKhhrr217eiqGfVE \
@@ -203,7 +203,7 @@ solana transfer receiver.json 0.1 \
 ```
 
 Output
-```
+```console
 Blockhash: F13BkBgNTyyuruUQFSgUkXPMJCfPvKhhrr217eiqGfVE
 Signers (Pubkey=Signature):
  HDx43xY4piU3xMxNyRQkj89cqiF15hz5FVW9ergTtZ7S=2gUmcb4Xwm3Dy9xH3a3bePsWVKCRMtUghqDS9pnGZDmX6hqtWMfpubEbgcai5twncoAJzyr9FRn3yuXVeSvYD4Ni
@@ -215,7 +215,7 @@ The transaction is signed by `co-sender`'s wallet who will pay the tx fee. Also,
 
 In a real world scenario, `co-sender` can share their `Pubkey=Signature` pair with the `sender` who will need this sign and submit the transaction. This share may take more than a minute to happen. Once the `sender` receives this pair, they can initiate the transfer.
 
-```
+```console
 solana transfer receiver.json 0.1 \
   --allow-unfunded-recipient \
   --blockhash F13BkBgNTyyuruUQFSgUkXPMJCfPvKhhrr217eiqGfVE \
@@ -225,7 +225,7 @@ solana transfer receiver.json 0.1 \
 ```
 
 Output
-```
+```console
 Error: Hash has expired F13BkBgNTyyuruUQFSgUkXPMJCfPvKhhrr217eiqGfVE
 ```
 
@@ -234,13 +234,13 @@ The transfer is not successful because the hash has expired. How do we overcome 
 We will use the `nonce-account.json` and `nonce-authority.json` keypairs that we created earlier. We already have a nonce initialised in the `nonce-account`. Let's advance it to get a new one first, just to be sure that the `nonce` isn't already used.
 
 
-```
+```console
 solana new-nonce nonce-account.json
 solana nonce-account nonce-account.json
 ```
 
 Output
-```
+```console
 Signature: 3z1sSU7fmdRoBZynVLiJEqa97Ja481nb3r1mLu8buAgwMnaKdF4ZaiBkzrLjPRzn1HV2rh4AHQTJHAQ3DsDiYVpF
 
 Balance: 0.0014999 SOL
@@ -252,7 +252,7 @@ Authority: 5CZKcm6PakaRWGK8NogzXvj8CjA71uSofKLohoNi4Wom
 
 Perfect, now let's start with offline co-signing the transaction with `co-signer`'s wallet, but this time, we'll use the `Nonce blockhash` printed above, which is basically the `nonce` stored in the `nonce-account` as the blockhash for the transfer transaction.
 
-```
+```console
 solana transfer receiver.json 0.1 \
   --sign-only \
   --nonce nonce-account.json \
@@ -263,7 +263,7 @@ solana transfer receiver.json 0.1 \
 ```
 
 Output
-```
+```console
 Blockhash: HNUi6La2QpGJdfcAR6yFFmdgYoCvFZREkve2haMBxXVz
 Signers (Pubkey=Signature):
  HDx43xY4piU3xMxNyRQkj89cqiF15hz5FVW9ergTtZ7S=5tfuPxsXchbVFU745658nsQr5Gqhb5nRnZKLnnovJ2PZBHbqUbe7oB5kDbnq7tjeJ2V8Mywa4gujUjT4BWKRcAdi
@@ -273,7 +273,7 @@ Absent Signers (Pubkey):
 
 This is very similar to the one we signed using the recent blockhash. Now we'll sign and send the transaction with the `sender`'s wallet.
 
-```
+```console
 solana transfer receiver.json 0.1 \
   --nonce nonce-account.json \
   --nonce-authority nonce-authority.json \
@@ -284,7 +284,7 @@ solana transfer receiver.json 0.1 \
 ```
 
 Output
-```
+```console
 Signature: anQ8VtQgeSMoKTnQCubTenq1J7WKxAa1dbFMDLsbDWgV6GGL135G1Ydv4QTNd6GptP3TxDQ2ZWi3Y5qnEtjM7yg
 ```
 
