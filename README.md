@@ -408,3 +408,23 @@ const signedtx = await signTransaction(tx);
 const serialisedTx = bs58.encode(signedtx.serialize({requireAllSignatures: false}));
 console.log("Signed Durable Transaction: ", serialisedTx);
 ```
+
+## Live Example: Poll Simulation App
+### Introduction
+The Poll Simulation app simulates a real-life poll mechanism, wherein voters are allowed to vote for a given set of time, and once the time comes for counting, the votes are counted, the count is publicly announced to everyone and the winner is declared. This is tough to build on-chain, as changing the state of an account on-chain is a public action, and hence if a user votes for someone, others would know and hence the count won't be hidden from the public until the voting has completed.
+
+Durable nonces can be used to partially fix this. Instead of signing and sending the transaction when voting for your candidate, the dapp can let the user sign the transaction using durable nonces, serialise the transaction as shown above in the web3.js example, and save the serialised transactions in a database, until the time comes for counting.
+
+For counting the votes, the dapp then needs to sync send or submit all the signed transactions one by one. With each submitted transaction, the state change will happen on-chain and the winner can be decided.
+
+### Live App
+* The app is live on:
+[**https://durable-nonces-demo.vercel.app/**](https://durable-nonces-demo.vercel.app/)
+
+* Information on how to use the dapp can be found here:
+
+
+* Information on how to build the dapp locally can be found here:
+
+
+## Durable Nonces Applications
