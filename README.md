@@ -1,6 +1,27 @@
 # Durable & Offline Transaction Signing using Nonces
 This repository is meant to be a one-stop shop for Solana's Durable Nonces: a highly under-utilised and under-appreciated way to power your Solana dapps and make their user experience more reliable and deterministic.
 
+## Table of Contents
+* Introduction to Durable Nonces
+    * [Double Spend](https://github.com/0xproflupin/solana-durable-nonces#double-spend)
+    * [Recent Blockhashes](https://github.com/0xproflupin/solana-durable-nonces#recent-blockhashes)
+    * [Durable Nonces](https://github.com/0xproflupin/solana-durable-nonces#durable-nonces)
+    * [Nonce Account](https://github.com/0xproflupin/solana-durable-nonces#nonce-account)
+    * [Nonce Authority](https://github.com/0xproflupin/solana-durable-nonces#nonce-authority)
+* [Durable Nonces with Solana CLI](https://github.com/0xproflupin/solana-durable-nonces#durable-nonces-with-solana-cli)
+    * [Create Nonce Authority](https://github.com/0xproflupin/solana-durable-nonces#create-nonce-authority)
+    * [Create Nonce Account](https://github.com/0xproflupin/solana-durable-nonces#create-nonce-account)
+    * [Fetch Nonce](https://github.com/0xproflupin/solana-durable-nonces#fetch-nonce)
+    * [Displace Nonce Account](https://github.com/0xproflupin/solana-durable-nonces#displace-nonce-account)
+    * [Advancing Nonce](https://github.com/0xproflupin/solana-durable-nonces#advancing-nonce)
+    * [Withdraw from Nonce Account](https://github.com/0xproflupin/solana-durable-nonces#advancing-nonce)
+* [Live Example: DAO Offline Co-Signing](https://github.com/0xproflupin/solana-durable-nonces#live-example-dao-offline-co-signing)
+* [Durable Nonces with Solana web3.js](https://github.com/0xproflupin/solana-durable-nonces#durable-nonces-with-solana-web3js)
+    * [Create Nonce Authority](https://github.com/0xproflupin/solana-durable-nonces#create-nonce-authority-1)
+    * [Create Nonce Accounts](https://github.com/0xproflupin/solana-durable-nonces#create-nonce-accounts)
+    * [Fetch Initialised Nonce Account](https://github.com/0xproflupin/solana-durable-nonces#fetch-initialised-nonce-account)
+    * [Sign Transaction using Durable Nonce](https://github.com/0xproflupin/solana-durable-nonces#sign-transaction-using-durable-nonce)
+
 ## Introduction to Durable Nonces
 ### Double Spend
 Imagine you're buying an NFT on MagicEden or Tensor. You have to sign a transaction that allows the marketplace's program to extract some SOL from your wallets.
@@ -14,7 +35,7 @@ A naive solution could be to crosscheck all transactions made in the past and se
 ### Recent Blockhashes
 Solution: Crosscheck signatures within only a set period of recent time, and discard the transaction if it gets "too" old.
 
-Recent Blockhashes are used to achieve this. Using recent blockhashes, transactions are checked in the last 150 blocks. If they are found, they are rejected. They are also rejected if they get older than 150 blocks. The only case they are accepted are if they are unique and the blockhash is more recent than 150 blocks (~80-90 seconds).
+Recent Blockhashes are used to achieve this. A blockhash contains a 32-byte SHA-256 hash. It is used to indicate when a client last observed the ledger. Using recent blockhashes, transactions are checked in the last 150 blocks. If they are found, they are rejected. They are also rejected if they get older than 150 blocks. The only case they are accepted are if they are unique and the blockhash is more recent than 150 blocks (~80-90 seconds).
 
 As you can imagine, a side-effect of using recent blockhashes is the forced mortality of a transaction even before its submission. 
 
@@ -384,5 +405,6 @@ const signedtx = await signTransaction(tx);
 // once you have the signed tx, you can serialise it and store it
 // in a database, or send it to another device. You can submit it
 // at a later point, without the tx having a mortality
-const ser = bs58.encode(signedtx.serialize({requireAllSignatures: false}));
+const serialisedTx = bs58.encode(signedtx.serialize({requireAllSignatures: false}));
+console.log("Signed Durable Transaction: ", serialisedTx);
 ```
