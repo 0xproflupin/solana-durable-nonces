@@ -2,7 +2,7 @@
 This repository is meant to be a one-stop shop for Solana's Durable Nonces: a highly under-utilised and under-appreciated way to power your Solana dapps and make their user experience more reliable and deterministic.
 
 ## Table of Contents
-* [Introduction to Durable Nonces](https://github.com/0xproflupin/solana-durable-nonces#introduction-to-durable-nonces)
+* [Introduction to Durable Nonces](#introduction-to-durable-nonces)
     * [Double Spend](https://github.com/0xproflupin/solana-durable-nonces#double-spend)
     * [Recent Blockhashes](https://github.com/0xproflupin/solana-durable-nonces#recent-blockhashes)
     * [Durable Nonces](https://github.com/0xproflupin/solana-durable-nonces#durable-nonces)
