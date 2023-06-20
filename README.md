@@ -16,11 +16,17 @@ This repository is meant to be a one-stop shop for Solana's Durable Nonces: a hi
     * [Advancing Nonce](#advancing-nonce)
     * [Withdraw from Nonce Account](#advancing-nonce)
 * [**Live Example: DAO Offline Co-Signing**](#live-example-dao-offline-co-signing)
+    * [Using Recent Blockhashes](#using-recent-blockhashes)
+    * [Using Durables Nonces](#using-durable-nonces)
 * [**Durable Nonces with Solana `web3.js`**](#durable-nonces-with-solana-web3js)
     * [Create Nonce Authority](#create-nonce-authority-1)
     * [Create Nonce Accounts](#create-nonce-accounts)
     * [Fetch Initialised Nonce Account](#fetch-initialised-nonce-account)
     * [Sign Transaction using Durable Nonce](#sign-transaction-using-durable-nonce)
+* [**Live Example: Poll Simulation App**](#live-example-poll-simulation-app)
+    * [Introduction](#introduction)
+    * [Live App](#live-app)
+* [**Durable Nonce Applications**](#durable-nonce-applications)
 
 ## Introduction to Durable Nonces
 ### Double Spend
@@ -180,8 +186,6 @@ Authority: 5CZKcm6PakaRWGK8NogzXvj8CjA71uSofKLohoNi4Wom
 ```
 
 ## Live Example: DAO Offline Co-Signing
-Before we try to sign and send a durable transaction, let's see how transactions are sumbitted using blockhashes. 
-
 We will use an example where a DAO committee needs to transfer some SOL to a new wallet. Two co-signers are needed before sending the SOL, where `co-sender` pays for the transaction and `sender` sends the SOL. To add to this, the `co-sender` is very careful when it comes to connecting his device to the internet, and thus wants to sign the transaction offline.
 
 Let's create three new keypairs which will act as the two members of the DAO, and the receiver. Although for this example we are creating the keypairs in the same system, we will assume that these accounts are on different systems to replicate an IRL scenario.
@@ -203,6 +207,9 @@ Let's add some SOL to the the member wallets.
 solana airdrop -k sender.json 0.5
 solana airdrop -k co-sender.json 0.5
 ```
+
+### Using Recent Blockhashes
+Before we try to sign and send a durable transaction, let's see how transactions are sumbitted using blockhashes. 
 
 The first step is to build a transfer transaction from `sender` to `reciever` and sign it with `co-sender`'s wallet.
 
@@ -252,6 +259,7 @@ Error: Hash has expired F13BkBgNTyyuruUQFSgUkXPMJCfPvKhhrr217eiqGfVE
 
 The transfer is not successful because the hash has expired. How do we overcome this issue of expired blockhashes? Using Durable Nonces!
 
+### Using Durable Nonces
 We will use the `nonce-account.json` and `nonce-authority.json` keypairs that we created earlier. We already have a nonce initialised in the `nonce-account`. Let's advance it to get a new one first, just to be sure that the `nonce` isn't already used.
 
 
