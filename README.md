@@ -348,27 +348,41 @@ console.log("Nonce initiated: ", sig);
 ```JS
 const accountInfo = await connection.getAccountInfo(nonceKeypair.publicKey);
 const nonceAccount = NonceAccount.fromAccountData(accountInfo.data);
-const nonce = nonceAccount.nonce;
 ```
 
 ### Sign Transaction using Durable Nonce
 ```JS
-const ix = program.instruction.vote(vote, {
-    accounts: {
-    poll: poll,
-    user: wallet.publicKey,
-    }
+// make a system transfer instruction
+const ix = SystemProgram.transfer({
+    fromPubkey: publicKey,
+    toPubkey: publicKey,
+    lamports: 100,
 });
+
+// make a nonce advance instruction
 const advanceIX = SystemProgram.nonceAdvance({
     authorizedPubkey: nonceAuthKP.publicKey,
     noncePubkey: noncePubKey
 })
+
+// add them to a transaction
 const tx = new Transaction();
 tx.add(advanceIX);
 tx.add(ix);
 
-tx.recentBlockhash = nonce;
+// use the nonceAccount's stored nonce as the recentBlockhash
+tx.recentBlockhash = nonceAccount.nonce;
 tx.feePayer = publicKey;
+
+// sign the tx with the nonce authority's keypair
 tx.sign(nonceAuthKP);
+
+// make the owner of the publicKey sign the transaction
+// this should open a wallet popup and let the user sign the tx
 const signedtx = await signTransaction(tx);
+
+// once you have the signed tx, you can serialise it and store it
+// in a database, or send it to another device. You can submit it
+// at a later point, without the tx having a mortality
+const ser = bs58.encode(signedtx.serialize({requireAllSignatures: false}));
 ```
