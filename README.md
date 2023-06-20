@@ -423,8 +423,18 @@ For counting the votes, the dapp then needs to sync send or submit all the signe
 
 * Information on how to use the dapp can be found here:
 
-
 * Information on how to build the dapp locally can be found here:
 
 
-## Durable Nonces Applications
+## Durable Nonce Applications
+As we've clearly seen throughout this guide, while the standard nonce mechanism allows for transactions to be included in a block within a specific timeframe, Durable Nonces in Solana provide an opportunity to create and sign a transaction that can be submitted at any point in the future. This opens up a wide range of use-cases that are otherwise not possible or too difficult to implement:
+
+1. **Scheduled Transactions**: One of the most apparent applications of Durable Nonces is the ability to schedule transactions. Users can pre-sign a transaction and then submit it at a later date, allowing for planned transfers, contract interactions, or even executing pre-determined investment strategies.
+
+2. **Multisig Wallets**: Durable Nonces are very useful for multi-signature wallets where one party signs a transaction and others may confirm at a later time. This feature enables the proposal, review, and later execution of a transaction within a trustless system.
+
+3. **Programs Requiring Future Interaction**: If a program on Solana requires interaction at a future point (such as a vesting contract or a timed release of funds), a transaction can be pre-signed using a Durable Nonce. This ensures the contract interaction happens at the correct time without necessitating the presence of the transaction creator.
+
+4. **Cross-chain Interactions**: When you need to interact with another blockchain, and it requires waiting for confirmations, you could sign the transaction with a Durable Nonce and then execute it once the required confirmations are received.
+
+5. **Decentralized Derivatives Platforms**: In a decentralized derivatives platform, complex transactions might need to be executed based on specific triggers. With Durable Nonces, these transactions can be pre-signed and executed when the trigger condition is met.
