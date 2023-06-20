@@ -429,9 +429,9 @@ For counting the votes, the dapp then needs to sync, send or submit all the sign
 * The app is live on:
 [**https://durable-nonces-demo.vercel.app/**](https://durable-nonces-demo.vercel.app/)
 
-* Information on how to use the dapp can be found here:
+* Information on how to use the dapp can be found [here](https://github.com/0xproflupin/solana-durable-nonces/blob/main/durable-nonces-demo/README.md#how-to-use-the-dapp)
 
-* Information on how to build the dapp locally can be found here:
+* Information on how to build the dapp locally can be found [here](https://github.com/0xproflupin/solana-durable-nonces/blob/main/durable-nonces-demo/README.md#how-to-build-the-dapp-locally)
 
 
 ## Durable Nonce Applications
