@@ -14,7 +14,9 @@ Before we dive deep into Durable Nonces, its important to understand that durabl
 
 5. **Decentralized Derivatives Platforms**: In a decentralized derivatives platform, complex transactions might need to be executed based on specific triggers. With Durable Nonces, these transactions can be pre-signed and executed when the trigger condition is met.
 
-We'll go through a lot in this guide:
+---
+
+We'll learn a ton in this guide:
 
 * [**Durable Nonce Applications**](#durable-nonce-applications)
 * [**Introduction to Durable Nonces**](#introduction-to-durable-nonces)
@@ -88,7 +90,9 @@ The Nonce Account is the account that stores the value of the nonce. This accoun
 ### Nonce Authority
 Nonce authority is the account that controls the Nonce Account. It has the authority to generate a new nonce, advance the nonce or withdraw SOL from the Nonce Account. By default, the account that creates the Nonce Account is delegated as the Nonce Authority, but it's possible to transfer the authority onto a keypair account or a PDA.
 
-Now that we know what Durable Nonces are, it's time to create some use them to send durable transactions.
+---
+
+Now that we know what Durable Nonces are, it's time to use them to send durable transactions.
 
 > If you do not have the Solana CLI installed, please go through [this](https://docs.solana.com/cli/install-solana-cli-tools) tutorial and set up the CLI and a keypair with some airdropped SOL on devnet
 
@@ -449,20 +453,6 @@ For counting the votes, the dapp then needs to sync, send or submit all the sign
 * Information on how to use the dapp can be found [here](https://github.com/0xproflupin/solana-durable-nonces/blob/main/durable-nonces-demo/README.md#how-to-use-the-dapp)
 
 * Information on how to build the dapp locally can be found [here](https://github.com/0xproflupin/solana-durable-nonces/blob/main/durable-nonces-demo/README.md#how-to-build-the-dapp-locally)
-
-
-## Durable Nonce Applications
-As we've clearly seen throughout this guide, while the standard nonce mechanism allows for transactions to be included in a block within a specific timeframe, Durable Nonces in Solana provide an opportunity to create and sign a transaction that can be submitted at any point in the future. This opens up a wide range of use cases that are otherwise not possible or too difficult to implement:
-
-1. **Scheduled Transactions**: One of the most apparent applications of Durable Nonces is the ability to schedule transactions. Users can pre-sign a transaction and then submit it at a later date, allowing for planned transfers, contract interactions, or even executing pre-determined investment strategies.
-
-2. **Multisig Wallets**: Durable Nonces are very useful for multi-signature wallets where one party signs a transaction, and others may confirm at a later time. This feature enables the proposal, review, and later execution of a transaction within a trustless system.
-
-3. **Programs Requiring Future Interaction**: If a program on Solana requires interaction at a future point (such as a vesting contract or a timed release of funds), a transaction can be pre-signed using a Durable Nonce. This ensures the contract interaction happens at the correct time without necessitating the presence of the transaction creator.
-
-4. **Cross-chain Interactions**: When you need to interact with another blockchain, and it requires waiting for confirmations, you could sign the transaction with a Durable Nonce and then execute it once the required confirmations are received.
-
-5. **Decentralized Derivatives Platforms**: In a decentralized derivatives platform, complex transactions might need to be executed based on specific triggers. With Durable Nonces, these transactions can be pre-signed and executed when the trigger condition is met.
 
 ## References
 * 👏👏👏 Must read: [Neodyme Blog: Nonce Upon a Time, or a Total Loss of Funds](https://neodyme.io/blog/nonce-upon-a-time/) 
