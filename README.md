@@ -78,9 +78,9 @@ The solution lies with Durable Nonces⚡️
 ### Durable Nonces
 Durable Transaction Nonces, which are 32-byte alphanumerics, are used in place of recent blockhashes to make every transaction unique (to avoid double-spending) while removing the mortality on the unexecuted transaction.
 
-How do they make transactions unique to avoid double spending?
-
-If nonces are used in place of recent blockhashes, the first instruction of the transaction needs to be a `nonceAdvance` instruction, which changes or advances the nonce. This ensures that every transaction which is signed using the nonce as the recent blockhash, irrespective of being successfully submitted or not, will be unique.
+> How do they make transactions unique to avoid double spending?
+> 
+> If nonces are used in place of recent blockhashes, the first instruction of the transaction needs to be a `nonceAdvance` instruction, which changes or advances the nonce. This ensures that every transaction which is signed using the nonce as the recent blockhash, irrespective of being successfully submitted or not, will be unique.
 
 Let's look at a couple of accounts that are important for using durable nonces with Solana transactions.
 
