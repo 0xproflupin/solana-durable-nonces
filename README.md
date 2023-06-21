@@ -1,7 +1,22 @@
 # Durable & Offline Transaction Signing using Nonces
 This repository is meant to be a one-stop shop for Solana's Durable Nonces: a highly under-utilized and under-appreciated way to power your Solana dapps and make their user experience more reliable and deterministic.
 
-## Table of Contents
+## Durable Nonce Applications
+Before we dive deep into Durable Nonces, its important to understand that durable nonces provide an opportunity to create and sign a transaction that can be submitted at any point in the future, and much more. This opens up a wide range of use cases that are otherwise not possible or too difficult to implement:
+
+1. **Scheduled Transactions**: One of the most apparent applications of Durable Nonces is the ability to schedule transactions. Users can pre-sign a transaction and then submit it at a later date, allowing for planned transfers, contract interactions, or even executing pre-determined investment strategies.
+
+2. **Multisig Wallets**: Durable Nonces are very useful for multi-signature wallets where one party signs a transaction, and others may confirm at a later time. This feature enables the proposal, review, and later execution of a transaction within a trustless system.
+
+3. **Programs Requiring Future Interaction**: If a program on Solana requires interaction at a future point (such as a vesting contract or a timed release of funds), a transaction can be pre-signed using a Durable Nonce. This ensures the contract interaction happens at the correct time without necessitating the presence of the transaction creator.
+
+4. **Cross-chain Interactions**: When you need to interact with another blockchain, and it requires waiting for confirmations, you could sign the transaction with a Durable Nonce and then execute it once the required confirmations are received.
+
+5. **Decentralized Derivatives Platforms**: In a decentralized derivatives platform, complex transactions might need to be executed based on specific triggers. With Durable Nonces, these transactions can be pre-signed and executed when the trigger condition is met.
+
+We'll go through a lot in this guide:
+
+* [**Durable Nonce Applications**](#durable-nonce-applications)
 * [**Introduction to Durable Nonces**](#introduction-to-durable-nonces)
     * [Double Spend](#double-spend)
     * [Recent Blockhashes](#recent-blockhashes)
@@ -26,8 +41,9 @@ This repository is meant to be a one-stop shop for Solana's Durable Nonces: a hi
 * [**Live Example: Poll Simulation App**](#live-example-poll-simulation-app)
     * [Introduction](#introduction)
     * [Live App](#live-app)
-* [**Durable Nonce Applications**](#durable-nonce-applications)
 * [**References**](#references)
+
+Let's get started!
 
 ## Introduction to Durable Nonces
 ### Double Spend
@@ -210,7 +226,7 @@ solana airdrop -k co-sender.json 0.5
 ```
 
 ### Using Recent Blockhashes
-Before we try to sign and send a durable transaction, let's see how transactions are submitted using blockhashes. 
+Before we try to sign and send a durable transaction, let's see how transactions are submitted using blockhashes. Its important to note that although we'll attempt to achieve the above using recent blockhashes, the expected outcome is failure, which will help us appreciate why durable nonces are necessary here.
 
 The first step is to build a transfer transaction from `sender` to `reciever` and sign it with `co-sender`'s wallet.
 
