@@ -27,6 +27,7 @@ This repository is meant to be a one-stop shop for Solana's Durable Nonces: a hi
     * [Introduction](#introduction)
     * [Live App](#live-app)
 * [**Durable Nonce Applications**](#durable-nonce-applications)
+* [**References**](#references)
 
 ## Introduction to Durable Nonces
 ### Double Spend
