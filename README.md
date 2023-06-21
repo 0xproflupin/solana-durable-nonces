@@ -230,7 +230,9 @@ solana airdrop -k co-sender.json 0.5
 ```
 
 ### Using Recent Blockhashes
-Before we try to sign and send a durable transaction, let's see how transactions are submitted using blockhashes. Its important to note that although we'll attempt to achieve the above using recent blockhashes, the expected outcome is failure, which will help us appreciate why durable nonces are necessary here.
+Before we try to sign and send a durable transaction, let's see how transactions are submitted using blockhashes.
+
+> Its important to note that although we'll attempt to achieve the above using recent blockhashes, the expected outcome is failure, which will help us appreciate why durable nonces are necessary here.
 
 The first step is to build a transfer transaction from `sender` to `reciever` and sign it with `co-sender`'s wallet.
 
