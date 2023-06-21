@@ -447,7 +447,7 @@ As we've clearly seen throughout this guide, while the standard nonce mechanism 
 
 5. **Decentralized Derivatives Platforms**: In a decentralized derivatives platform, complex transactions might need to be executed based on specific triggers. With Durable Nonces, these transactions can be pre-signed and executed when the trigger condition is met.
 
-## Referneces
+## References
 * [Neodyme Blog: Nonce Upon a Time, or a Total Loss of Funds](https://neodyme.io/blog/nonce-upon-a-time/) 
 * [Solana Durable Nonces CLI](https://docs.solana.com/offline-signing/durable-nonce)
 * [Solana Durable Transaction Nonces Proposal](https://docs.solana.com/implemented-proposals/durable-tx-nonces)
