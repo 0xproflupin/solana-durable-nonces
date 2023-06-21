@@ -450,5 +450,4 @@ As we've clearly seen throughout this guide, while the standard nonce mechanism 
 ## Referneces
 * [Neodyme Blog: Nonce Upon a Time, or a Total Loss of Funds](https://neodyme.io/blog/nonce-upon-a-time/) 
 * [Solana Durable Nonces CLI](https://docs.solana.com/offline-signing/durable-nonce)
-* [Solana Durable Nonces Demo by Anvit](https://github.com/0xproflupin/solana-durable-nonces/)
 * [Solana Durable Transaction Nonces Proposal](https://docs.solana.com/implemented-proposals/durable-tx-nonces)
